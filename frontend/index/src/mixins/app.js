@@ -29,15 +29,15 @@ export const App = {
       }
       this.$r.store.version = data['version'] || 0
       this.$r.langs = data['langs'] || {}
-      this.$r.rtl = this.$storage.get('rtl', data['rtl'])
       let p = window.location.pathname.split('/')
       if (p[1] in data['langs']) {
         this.$r.lang = p[1]
         this.$storage.set('lang', p[1])
+        this.$storage.set('rtl', data['langs'][p[1]].rtl)
       } else {
         this.$r.lang = this.$storage.get('lang', data['lang'])
       }
-
+      this.$r.rtl = this.$storage.get('rtl', data['rtl'])
       if (data['translates'] && data['lang'] === this.$r.lang) {
         let r = {}
         data['translates'].forEach((item) => {
@@ -55,7 +55,7 @@ export const App = {
       document.documentElement.setAttribute('lang', this.$r.lang)
     },
     getDefault() {
-      this.$axios.get('site-default/' + this.$r.package).then(({ data }) => {
+      this.$axios.get('site-default/' + this.$r.package).then(({data}) => {
         let d = this.$storage.get('siteDefault', {})
         if (data['hash'] !== d['hash']) {
           this.$storage.set('siteDefault', data)
@@ -67,7 +67,7 @@ export const App = {
       })
     },
     lang_loads(lang) {
-      this.$axios.get(`/translate/renusify,${this.$r.package}/${lang}`).then(({ data }) => {
+      this.$axios.get(`/translate/renusify,${this.$r.package}/${lang}`).then(({data}) => {
         const d = {}
         const lng = data.length
         for (let i = 0; i < lng; i++) {
@@ -83,7 +83,7 @@ export const App = {
       })
     },
     userInfo() {
-      this.$r.store.user = { login: false, info: {} }
+      this.$r.store.user = {login: false, info: {}}
       this.$r.store.user_loaded = false
       if (this.$storage.get('auth.token', false)) {
         this.$r.store.user = this.$storage.get('user_login', {
@@ -91,7 +91,7 @@ export const App = {
           info: {}
         })
         this.$axios.get('user').then(
-          ({ data }) => {
+          ({data}) => {
             this.$r.store.user = data
             this.$storage.set('user_login', data)
             this.$r.store.user_loaded = true
