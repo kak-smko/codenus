@@ -1,7 +1,7 @@
 name = "codenus"
 env = "local"
 debug = True
-key = "dfhfUGFKgk@glJKKskkefo648l964kcvnknfjlkd68#49ldfxkcnvkmxcv56738"
+key = "strong-key"
 public_folder = "public"
 ipHeader = "cf-connecting-ip"
 cors_allow = ["*"]
