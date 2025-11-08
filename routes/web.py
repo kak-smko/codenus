@@ -23,7 +23,7 @@ def public_index(name: str,request:Request):
     fldr = "admin" if request.subdomain == "admin" else "index"
     if os.path.isfile(f'public/{fldr}/{name}'):
         header = {
-            'Cache-Control': 'max-age=2592000'  # 30*24*60*60
+            'Cache-Control': 'max-age=31536000'  # 1y
         }
         if name=='sw.js':
             header = {
