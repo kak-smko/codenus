@@ -77,7 +77,7 @@ $menu-width: 300px;
     position: fixed;
     top: 0;
     width: 100%;
-    height: var.$toolbar-height;
+    height: 80px;
     z-index: map.get(var.$z-index, "medium");
     background-color: var(--color-sheet);
     border-bottom: 1px solid;
@@ -93,7 +93,7 @@ $menu-width: 300px;
     .hover-div {
       width: calc(100% - #{$menu-width});
       max-width: calc(100% - #{$menu-width});
-      min-height: calc(100vh - #{var.$toolbar-height});
+      min-height: calc(100vh - 80px);
       transition: 0.1s all ease-in-out;
       position: absolute;
       top: 0;
@@ -118,8 +118,8 @@ $menu-width: 300px;
 
   .menu-panel {
     transition: 0.3s all ease-in-out;
-    height: calc(100vh - #{var.$toolbar-height});
-    top: var.$toolbar-height;
+    height: calc(100vh - 80px);
+    top: 80px;
     position: fixed;
     z-index: map.get(var.$z-index, "medium");
     opacity: 0;

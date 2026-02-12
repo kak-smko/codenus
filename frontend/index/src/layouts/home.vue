@@ -11,7 +11,7 @@
     <r-content>
       <router-view v-slot="{ Component }">
         <transition name="slide-end" mode="out-in">
-          <keep-alive :exclude="['singleBlog']">
+          <keep-alive >
             <component :is="Component" />
           </keep-alive>
         </transition>
@@ -33,7 +33,7 @@ export default {
     };
   },
   created() {
-    this.$axios.get('home/menu/home').then(({data})=>{
+    this.$axios.get('home/menu/home/'+this.$r.lang).then(({data})=>{
       this.baseMenu = data;
     })
   }

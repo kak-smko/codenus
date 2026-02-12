@@ -10,15 +10,11 @@ import {
   rBtn,
   rBtnConfirm,
   rCard,
-  rChart,
-  rChartMap,
   rCheckboxInput,
-  rChip,
   rCol,
   rConfirm,
   rContainer,
   rContent,
-  rCountDown,
   rCropper,
   rDateInput,
   rDivider,
@@ -27,10 +23,8 @@ import {
   rFormCreator,
   rIcon,
   rImg,
-  rInfiniteBox,
-  rList,
+  rInfinite,
   rMenu,
-  rMessage,
   rMeta,
   rModal,
   rNotify,
@@ -48,9 +42,7 @@ import {
   rTextArea,
   rMaskInput,
   rColorInput,
-  rTimeAgo,
-  rToolbar,
-  rNestable
+  rTimeAgo
 } from 'renusify/components'
 import { title } from 'renusify/directive'
 
@@ -67,15 +59,11 @@ const app = createApp(App)
       rBtn,
       rBtnConfirm,
       rCard,
-      rChart,
-      rChartMap,
       rCheckboxInput,
-      rChip,
       rCol,
       rConfirm,
       rContainer,
       rContent,
-      rCountDown,
       rCropper,
       rDateInput,
       rDivider,
@@ -84,10 +72,8 @@ const app = createApp(App)
       rFormCreator,
       rIcon,
       rImg,
-      rInfiniteBox,
-      rList,
+      rInfinite,
       rMenu,
-      rMessage,
       rMeta,
       rModal,
       rNotify,
@@ -105,9 +91,7 @@ const app = createApp(App)
       rTextArea,
       rColorInput,
       rTimeAgo,
-      rMaskInput,
-      rToolbar,
-      rNestable
+      rMaskInput
     },
     directives: { title }
   })

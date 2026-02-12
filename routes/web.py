@@ -12,7 +12,7 @@ def index(request:Request):
     header = {
         'Cache-Control': 'max-age=0'
     }
-    fldr="admin" if request.subdomain=="admin" else "index"
+    fldr="admin" if request.subdomain==Config('app').get('admin_subdomain','admin') else "index"
     r= FileResponse(f'public/{fldr}/index.html', headers=header)
     r.set_cookie('langs',",".join(Setting(request).langs()),max_age=60*60*24*30)
     return r
@@ -20,7 +20,7 @@ def index(request:Request):
 
 
 def public_index(name: str,request:Request):
-    fldr = "admin" if request.subdomain == "admin" else "index"
+    fldr = "admin" if request.subdomain == Config('app').get('admin_subdomain','admin') else "index"
     if os.path.isfile(f'public/{fldr}/{name}'):
         header = {
             'Cache-Control': 'max-age=31536000'  # 1y

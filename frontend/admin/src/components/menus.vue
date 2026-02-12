@@ -2,7 +2,7 @@
   <div class="ps-2 admin-menus">
     <div v-for="(item, i) in items" :key="i">
       <div class="d-flex h-space-between v-center cursor-pointer">
-        <r-card class="admin-menu-item title-3 d-flex v-center flex-grow-1"
+        <r-card class="admin-menu-item d-flex v-center flex-grow-1 py-1"
                 :to="item.to"
                 @click.prevent=" open === item.id ? (open = null) : (open = item.id) "
                 flat>
@@ -12,7 +12,7 @@
           {{ item.title }}
         </r-card>
         <r-icon v-if="item.children.length>0" class="me-1 cursor-pointer"
-                v-html="open === item.id? $r.icons.minus : $r.icons.plus"
+                v-html="open === item.id? $r.icons.chevron_up : $r.icons.chevron_down"
                 @click.prevent.stop=" open === item.id ? (open = null) : (open = item.id) "></r-icon>
       </div>
       <admin-menus v-if="item.children" :class="{ 'admin-menus-hide': open !== item.id}"
@@ -51,8 +51,7 @@ export default {
 .router-link-exact-active {
   background-color: var(--color-one) !important;
   color: var(--color-on-one) !important;
-  border-radius: 20px 0 0 20px;
-  padding: 4px 4px 4px 8px !important;
+
   path {
     stroke:var(--color-on-one) !important;
   }

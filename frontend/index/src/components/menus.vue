@@ -42,24 +42,26 @@ export default {
   min-width: 200px;
   max-height: 100vh;
   overflow: auto;
-}
 
-.user-menu-item {
-  padding: 4px;
-}
 
-.router-link-exact-active {
-  background-color: var(--color-one) !important;
-  color: var(--color-on-one) !important;
-  border-radius: 20px 0 0 20px;
-  padding: 4px 4px 4px 8px !important;
-  path {
-    stroke:var(--color-on-one) !important;
+  .user-menu-item {
+    padding: 4px;
   }
-}
 
-.user-menus-hide {
-  max-height: 0;
-  overflow: hidden;
+  .router-link-exact-active {
+    background-color: var(--color-one) !important;
+    color: var(--color-on-one) !important;
+    border-radius: 20px 0 0 20px;
+    padding: 4px 4px 4px 8px !important;
+
+    path {
+      stroke: var(--color-on-one) !important;
+    }
+  }
+
+  .user-menus-hide {
+    max-height: 0;
+    overflow: hidden;
+  }
 }
 </style>
