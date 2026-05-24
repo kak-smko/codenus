@@ -1,7 +1,7 @@
 <template>
   <r-app>
     <div
-      v-if="!lang_added"
+      v-if="!lang_added||!loaded"
       class="d-flex h-center v-center color-one h-full"
     >
       <r-progress-circle size="100" indeterminate width="5"></r-progress-circle>
@@ -19,10 +19,25 @@ import PwaBadge from "@/components/pwaBadge.vue"
 export default {
   components: {PwaBadge},
   mixins: [App],
+  data() {
+    return {
+      loaded: false
+    }
+  },
   created() {
+    if (import.meta.env.VITE_APP_ENCRYPT) {
+      this.$r.store.user = { login: false, info: {} }
+      this.$r.store.user_loaded = false
+      this.$axios.update_key().finally(() => {
+        this.userInfo()
+        this.loaded = true
+      })
+    } else {
+      this.loaded = true
+      this.userInfo()
+    }
     this.setDefault();
     this.getDefault();
-    this.userInfo();
     window.addEventListener("beforeinstallprompt", e => {
       // Prevent Chrome 67 and earlier from automatically showing the prompt
       console.log("beforeinstallprompt");

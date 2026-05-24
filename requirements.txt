@@ -1,6 +1,7 @@
 renus
 uvicorn[standard]
 Pillow
+cryptography
 
 
 

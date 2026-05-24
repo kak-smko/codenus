@@ -1,7 +1,9 @@
-name = "codenus"
+name = "SiteTitle"
 env = "local"
 debug = True
-key = "strong-key"
+key = b"strong key d1f4a6c0b9d8e7f2a1c3b"
+public_key = b""
+private_key = b""
 public_folder = "public"
 ipHeader = "x-forwarded-for"
 cors_allow = ["*"]

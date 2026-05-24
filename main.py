@@ -3,6 +3,12 @@ import multiprocessing
 from renus.app import App
 import routes.index
 
+# uncomment if you want use Crypto
+#from extension.codenus.user.crypt import Crypto
+#
+# JsonResponse.cryptor=Crypto
+# Request.cryptor=Crypto
+
 workers = multiprocessing.cpu_count() * 2 + 1
 
 app = App()

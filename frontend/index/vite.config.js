@@ -1,9 +1,9 @@
-import { fileURLToPath, URL } from 'node:url'
+import {fileURLToPath, URL} from 'node:url'
 
-import { defineConfig } from 'vite'
+import {defineConfig} from 'vite'
 import vue from '@vitejs/plugin-vue'
 import vueDevTools from 'vite-plugin-vue-devtools'
-import { VitePWA } from 'vite-plugin-pwa'
+import {VitePWA} from 'vite-plugin-pwa'
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -14,7 +14,7 @@ export default defineConfig({
     cssMinify: 'lightningcss'
   },
   server: {
-    proxy:{
+    proxy: {
       '/api': 'http://localhost:4000',
       '/storage': 'http://localhost:4000',
       '/pwa': 'http://localhost:4000',
@@ -24,16 +24,16 @@ export default defineConfig({
     vue(),
     vueDevTools(),
     VitePWA({
-    registerType: 'prompt',
-    injectRegister: false,
+      registerType: 'prompt',
+      injectRegister: false,
 
-    manifest: {
-      name: 'test',
-      short_name: 'test',
-      description: 'test',
-      theme_color: '#ffffff',
+      manifest: {
+        name: 'test',
+        short_name: 'test',
+        description: 'test',
+        theme_color: '#ffffff',
 
-      icons: [/*{
+        icons: [/*{
         src: 'pwa-64x64.png',
         sizes: '64x64',
         type: 'image/png',
@@ -51,22 +51,29 @@ export default defineConfig({
         type: 'image/png',
         purpose: 'maskable',
       }*/],
-    },
+      },
 
-    workbox: {
-      globPatterns: ['**/*.{js,css,html,svg,png,ico}'],
-      cleanupOutdatedCaches: true,
-      clientsClaim: true,
-      skipWaiting:true
-    },
+      workbox: {
+        globPatterns: ['**/*.{js,css,html,svg,png,ico}'],
+        cleanupOutdatedCaches: true,
+        clientsClaim: true,
+        skipWaiting: true,
+        navigateFallback: null, 
+        runtimeCaching: [
+          {
+            urlPattern: /^https:\/\/api\./,
+            handler: 'NetworkOnly'
+          }
+        ]
+      },
 
-    devOptions: {
-      enabled: false,
-      navigateFallback: 'index.html',
-      suppressWarnings: true,
-      type: 'module',
-    },
-  })
+      devOptions: {
+        enabled: false,
+        navigateFallback: 'index.html',
+        suppressWarnings: true,
+        type: 'module',
+      },
+    })
   ],
   resolve: {
     alias: {
