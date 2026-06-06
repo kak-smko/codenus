@@ -54,6 +54,13 @@ cd frontend/index
 npm run dev
 ```
 
+### 5. Install extensins
+```bash
+# install user extension
+python command.p.py extension codenus/user
+```
+
+
 ## Contributing
 
 We welcome contributions! We would be very happy to have you join us.

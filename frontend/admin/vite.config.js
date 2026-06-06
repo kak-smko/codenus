@@ -3,6 +3,7 @@ import { fileURLToPath, URL } from 'node:url'
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import vueDevTools from 'vite-plugin-vue-devtools'
+import renusifyAutoImport from 'renusify/plugins/auto-loader.mjs'
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -20,6 +21,7 @@ export default defineConfig({
     }
   },
   plugins: [
+    renusifyAutoImport(),
     vue(),
     vueDevTools()
   ],
