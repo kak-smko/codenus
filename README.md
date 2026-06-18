@@ -57,7 +57,8 @@ npm run dev
 ### 5. Install extensins
 ```bash
 # install user extension
-python command.p.py extension codenus/user
+renus extension codenus/user
+renus extension codenus/translate
 ```
 
 

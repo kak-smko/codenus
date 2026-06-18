@@ -2,7 +2,6 @@
 node_modules
 /storage/
 /public/
-/extension/
 __pycache__
 .idea
 .zed
