@@ -25,7 +25,7 @@ try {
 }
 
 const processQueue = (error, token = null) => {
-  failedQueue.forEach(prom => {
+  failedQueue.forEach((prom) => {
     if (error) {
       prom.reject(error)
     } else {
@@ -37,14 +37,14 @@ const processQueue = (error, token = null) => {
 
 // Listen for refresh events from other tabs
 if (refreshChannel) {
-  refreshChannel.onmessage = (event) => {
+  refreshChannel.onmessage = async (event) => {
     const { type, token, sharedKey } = event.data
     if (type === 'refresh_started') {
       isRefreshing = true
     } else if (type === 'refresh_completed') {
       isRefreshing = false
       if (token) {
-        window.app.$storage.set('auth.token', token)
+        await window.app.$storage.setSafe('auth.token', token)
         axios.defaults.headers.common.Authorization = token
         processQueue(null, token)
       }
@@ -81,16 +81,17 @@ const encryptRequestData = (data, contentType) => {
 
 // 🔐 Request Interceptor: Auto-encrypt + handle response type
 axios.interceptors.request.use(
-  (config) => {
+  async (config) => {
     const methodsToEncrypt = ['post', 'put', 'patch', 'POST', 'PUT', 'PATCH']
-// Auth token
+    // Auth token
     if (window.app.$storage.has('auth.token')) {
-      config.headers.Authorization = window.app.$storage.get('auth.token')
+      config.headers.Authorization = await window.app.$storage.getSafe('auth.token')
     }
     config.headers.lang = window.app.$r.lang
     // 🔐 Auto-encrypt request body if flag is set
     if (config.encrypt && methodsToEncrypt.includes(config.method) && config.data) {
-      const originalContentType = config.headers['Content-Type'] || config.headers['content-type'] || 'application/json'
+      const originalContentType =
+        config.headers['Content-Type'] || config.headers['content-type'] || 'application/json'
 
       // Encrypt the data
       return encryptRequestData(config.data, originalContentType).then((encryptedData) => {
@@ -107,7 +108,6 @@ axios.interceptors.request.use(
 
         return config
       })
-
     } else if (config.responseType === 'arraybuffer' || config.encrypt) {
       // 🔓 Handle non-encrypted but binary responses
       config.responseType = 'arraybuffer'
@@ -116,7 +116,7 @@ axios.interceptors.request.use(
 
     return config
   },
-  (error) => Promise.reject(error)
+  (error) => Promise.reject(error),
 )
 
 // 🔓 Response Interceptor: Auto-decrypt if encrypted header present
@@ -195,7 +195,9 @@ axios.interceptors.response.use(
           const decryptedBytes = await cryptor.decrypt(encryptedBytes)
           const decryptedText = new TextDecoder('utf-8').decode(decryptedBytes)
           const realType = res.headers['real-type'] || res.headers['realType'] || 'application/json'
-          res.data = realType.includes('application/json') ? JSON.parse(decryptedText) : decryptedText
+          res.data = realType.includes('application/json')
+            ? JSON.parse(decryptedText)
+            : decryptedText
         }
       } catch (e) {
         console.warn('Failed to decrypt error response', e)
@@ -234,10 +236,12 @@ axios.interceptors.response.use(
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject })
-        }).then(token => {
-          error.config.headers.Authorization = token
-          return axios(error.config)
-        }).catch(err => Promise.reject(err))
+        })
+          .then((token) => {
+            error.config.headers.Authorization = token
+            return axios(error.config)
+          })
+          .catch((err) => Promise.reject(err))
       }
 
       error.config._retry = true
@@ -251,7 +255,7 @@ axios.interceptors.response.use(
         const response = await axios.get('/user/renew-token')
         const newToken = response.data.token
 
-        window.app.$storage.set('auth.token', newToken)
+        await window.app.$storage.setSafe('auth.token', newToken)
         axios.defaults.headers.common.Authorization = newToken
         error.config.headers.Authorization = newToken
 
@@ -275,7 +279,7 @@ axios.interceptors.response.use(
     }
 
     return Promise.reject(error)
-  }
+  },
 )
 
 axios.update_key = () => {
@@ -283,34 +287,46 @@ axios.update_key = () => {
   if (refreshChannel) {
     refreshChannel.postMessage({ type: 'refresh_started' })
   }
-  return cryptor.init(serverPublicKey).then((clientPublicKey) => {
-    return axios.post('/user/renew-token', {
-      pubKey: clientPublicKey
-    }, { encrypt: false }).then(({ data }) => {
-      const newToken = data.token
+  return cryptor
+    .init(serverPublicKey)
+    .then((clientPublicKey) => {
+      return axios
+        .post(
+          '/user/renew-token',
+          {
+            pubKey: clientPublicKey,
+          },
+          { encrypt: false },
+        )
+        .then(
+          async ({ data }) => {
+            const newToken = data.token
 
-      window.app.$storage.set('auth.token', newToken)
-      axios.defaults.headers.common.Authorization = newToken
+            await window.app.$storage.setSafe('auth.token', newToken)
+            axios.defaults.headers.common.Authorization = newToken
 
-      if (refreshChannel) {
-        refreshChannel.postMessage({ type: 'refresh_completed', token: newToken })
-        refreshChannel.postMessage({ type: 'crypto_key', sharedKey: cryptor.sharedKey })
-      }
-      return Promise.resolve('ok')
-    }, (err) => {
-      if (refreshChannel) {
-        refreshChannel.postMessage({ type: 'refresh_failed' })
-      }
-      window.app.$toast(window.app.$t('auth.token_renewal_failed'), { type: 'error' })
-      return Promise.reject(err)
+            if (refreshChannel) {
+              refreshChannel.postMessage({ type: 'refresh_completed', token: newToken })
+              refreshChannel.postMessage({ type: 'crypto_key', sharedKey: cryptor.sharedKey })
+            }
+            return Promise.resolve('ok')
+          },
+          (err) => {
+            if (refreshChannel) {
+              refreshChannel.postMessage({ type: 'refresh_failed' })
+            }
+            window.app.$toast(window.app.$t('auth.token_renewal_failed'), { type: 'error' })
+            return Promise.reject(err)
+          },
+        )
     })
-  }).finally(() => {
-    isRefreshing = false
-  })
+    .finally(() => {
+      isRefreshing = false
+    })
 }
 export default {
   install: (app) => {
     app.config.globalProperties.$axios = axios
     app.provide('axios', app.config.globalProperties.$axios)
-  }
+  },
 }

@@ -1,5 +1,4 @@
-import uvicorn,os
-import multiprocessing
+import uvicorn
 from renus.app import App
 import routes.index
 
@@ -9,7 +8,7 @@ import routes.index
 # JsonResponse.cryptor=Crypto
 # Request.cryptor=Crypto
 
-workers = multiprocessing.cpu_count() * 2 + 1
+workers = 8
 
 app = App()
 
