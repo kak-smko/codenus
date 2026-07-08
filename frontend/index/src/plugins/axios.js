@@ -1,7 +1,7 @@
 import axios from 'axios'
 import { Crypto } from '@/plugins/ecc.js'
 
-const serverPublicKey = import.meta.env.VITE_APP_SERVER_PUBKEY=="true"
+const serverPublicKey = import.meta.env.VITE_APP_SERVER_PUBKEY
 
 const cryptor = new Crypto()
 
@@ -10,7 +10,8 @@ axios.defaults.baseURL = `${import.meta.env.VITE_APP_API_URL}/api`
 axios.defaults.headers['X-Requested-With'] = 'XMLHttpRequest'
 axios.defaults.headers.post['Content-Type'] = 'application/json'
 // add encryption to all requests
-axios.defaults.encrypt = import.meta.env.VITE_APP_ENCRYPT
+axios.defaults.encrypt = import.meta.env.VITE_APP_ENCRYPT==="true"
+axios.defaults.encrypt = import.meta.env.VITE_APP_ENCRYPT === 'true'
 
 // Variables to track token refresh state
 let isRefreshing = false
@@ -88,12 +89,20 @@ axios.interceptors.request.use(
       config.headers.Authorization = await window.app.$storage.getSafe('auth.token')
     }
     config.headers.lang = window.app.$r.lang
+
+    // Check if encryption is enabled globally (backend might send encrypted responses)
+    const globalEncryptionEnabled = axios.defaults.encrypt === true
+
     // 🔐 Auto-encrypt request body if flag is set
     if (config.encrypt && methodsToEncrypt.includes(config.method) && config.data) {
       const originalContentType =
         config.headers['Content-Type'] || config.headers['content-type'] || 'application/json'
 
-      // Encrypt the data
+      if (config.data instanceof FormData) {
+        config.responseType = 'arraybuffer'
+        config.transformResponse = [(data) => data]
+        return config
+      }
       return encryptRequestData(config.data, originalContentType).then((encryptedData) => {
         config.data = encryptedData
 
@@ -108,8 +117,9 @@ axios.interceptors.request.use(
 
         return config
       })
-    } else if (config.responseType === 'arraybuffer' || config.encrypt) {
-      // 🔓 Handle non-encrypted but binary responses
+    } else if (config.responseType === 'arraybuffer' || globalEncryptionEnabled) {
+      // 🔓 Handle responses when encryption is enabled globally
+      // Even if request is not encrypted, backend might send encrypted response
       config.responseType = 'arraybuffer'
       config.transformResponse = [(data) => data]
     }
@@ -292,6 +302,7 @@ axios.update_key = () => {
     .then((clientPublicKey) => {
       if (!window.app.$storage.has('auth.token')) {
         return "ok"
+        return 'ok'
       }
       return axios
         .post(
