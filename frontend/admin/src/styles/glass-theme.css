@@ -1,0 +1,32 @@
+/* ============================================
+   تم شیشه‌ای ۲۰۲۶
+   ============================================ */
+
+:root {
+  --glass-bg: rgba(255, 255, 255, 0.55);
+  --glass-border: rgba(255, 255, 255, 0.4);
+  --glass-shadow: 0 8px 32px rgba(31, 38, 135, 0.08);
+  --glass-blur: 20px;
+
+  --glass-primary: rgba(59, 130, 246, 0.12);
+  --glass-primary-border: rgba(59, 130, 246, 0.15);
+  --glass-primary-hover: rgba(59, 130, 246, 0.08);
+}
+
+/* کلاس‌های کمکی شیشه‌ای */
+.glass {
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+}
+
+.glass-primary {
+  background: var(--glass-primary);
+  border-color: var(--glass-primary-border);
+}
+
+.glass-hover:hover {
+  background: var(--glass-primary-hover);
+}

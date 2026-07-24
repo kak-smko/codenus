@@ -1,26 +1,23 @@
 <template>
   <r-app>
-    <div
-      v-if="!lang_added||!loaded"
-      class="d-flex h-center v-center color-one h-full"
-    >
+    <div v-if="!lang_added || !loaded" class="d-flex h-center v-center color-one h-full">
       <r-progress-circle size="100" indeterminate width="4"></r-progress-circle>
     </div>
     <router-view v-else />
   </r-app>
 </template>
 <script>
-import { App } from "./mixins/app.js";
+import { App } from './mixins/app.js'
 
 export default {
   mixins: [App],
   data() {
     return {
-      loaded: false
+      loaded: false,
     }
   },
   created() {
-    if (import.meta.env.VITE_APP_ENCRYPT==="true") {
+    if (import.meta.env.VITE_APP_ENCRYPT === 'true') {
       this.$r.store.user = { login: false, info: {} }
       this.$r.store.user_loaded = false
       this.$axios.update_key().finally(() => {
@@ -31,14 +28,14 @@ export default {
       this.loaded = true
       this.userInfo()
     }
-    this.setDefault();
-    this.getDefault();
-    window.addEventListener("beforeinstallprompt", e => {
+    this.setDefault()
+    this.getDefault()
+    window.addEventListener('beforeinstallprompt', (e) => {
       // Prevent Chrome 67 and earlier from automatically showing the prompt
-      console.log("beforeinstallprompt");
-      e.preventDefault();
-      this.$r.store.deferredPrompt = e;
-    });
-  }
-};
+      console.log('beforeinstallprompt')
+      e.preventDefault()
+      this.$r.store.deferredPrompt = e
+    })
+  },
+}
 </script>

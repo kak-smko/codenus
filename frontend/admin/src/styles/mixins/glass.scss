@@ -1,0 +1,86 @@
+/**
+ * Glassmorphism Effect Mixins
+ * Modern 2026 UI/UX Design System
+ */
+
+// Glass base effect with backdrop blur
+@mixin glass-base($opacity: 0.7, $blur: 12px) {
+  background: rgba(255, 255, 255, $opacity);
+  backdrop-filter: blur($blur) saturate(180%);
+  -webkit-backdrop-filter: blur($blur) saturate(180%);
+}
+
+// Primary glass effect (light)
+@mixin glass-light {
+  @include glass-base(0.7, 12px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 8px 32px rgba(31, 38, 135, 0.08);
+}
+
+// Secondary glass effect (darker)
+@mixin glass-dark {
+  @include glass-base(0.5, 16px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px rgba(31, 38, 135, 0.12);
+}
+
+// Glass effect for cards
+@mixin glass-card {
+  @include glass-base(0.8, 10px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 0 4px 16px rgba(31, 38, 135, 0.06);
+  border-radius: 16px;
+}
+
+// Glass effect for sidebar/menu
+@mixin glass-sidebar {
+  @include glass-base(0.85, 14px);
+  border-right: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 4px 0 24px rgba(31, 38, 135, 0.08);
+}
+
+// Glass effect for header
+@mixin glass-header {
+  @include glass-base(0.9, 10px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 4px 16px rgba(31, 38, 135, 0.06);
+}
+
+// Hover effect for glass elements
+@mixin glass-hover {
+  background: rgba(0, 0, 0, 0.06);
+  transition: all 0.25s ease;
+}
+
+// Active/Selected state for glass elements
+@mixin glass-active {
+  background: rgba(0, 0, 0, 0.08);
+  border-color: rgba(0, 0, 0, 0.15);
+}
+
+// Custom scrollbar for glass containers
+@mixin glass-scrollbar {
+  &::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.03);
+    border-radius: 10px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+    
+    &:hover {
+      background: rgba(0, 0, 0, 0.3);
+    }
+  }
+}
+
+// Smooth transitions
+@mixin smooth-transition($properties: all, $duration: 0.25s) {
+  transition: $properties $duration ease;
+}
