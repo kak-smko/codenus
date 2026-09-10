@@ -45,8 +45,6 @@ def default(request,package,lang):
     rtl = site_default['rtl']
 
     meta_tag = Setting(request).hub.get('meta_tag', '')
-    if Config('app').get('env', 'production') == 'local':
-        meta_tag = ''
 
     colors = ''
     if site_color:
