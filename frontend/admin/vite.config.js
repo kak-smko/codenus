@@ -20,12 +20,30 @@ export default defineConfig({
   },
   server: {
    proxy:{
-      '/api': 'http://localhost:4000',
-      '/storage': 'http://localhost:4000',
-      '/pwa': 'http://localhost:4000',
+      '/api': 'http://localhost:4000'
     }
   },
   plugins: [
+    {
+      name: 'production-content-security-policy',
+      apply: 'build',
+      transformIndexHtml: {
+        order: 'post',
+        handler() {
+          return [
+            {
+              tag: 'meta',
+              attrs: {
+                'http-equiv': 'Content-Security-Policy',
+                content:
+                  "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; form-action 'self'; base-uri 'self'; upgrade-insecure-requests;",
+              },
+              injectTo: 'head',
+            },
+          ]
+        },
+      },
+    },
     renusifyAutoImport(),
     vue({
       template: {

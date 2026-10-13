@@ -1,61 +1,53 @@
 <script setup>
-import { ref } from 'vue'
+import { onBeforeUnmount } from 'vue'
 import { useRegisterSW } from 'virtual:pwa-register/vue'
 
-// check for updates every day
-const period = 24 * 60 * 60 * 1000
+const updateCheckPeriod = 24 * 60 * 60 * 1000
+let initialUpdateCheck
+let updateCheckInterval
 
-const swActivated = ref(false)
+function registerPeriodicSync(swUrl, registration) {
+  if (updateCheckPeriod <= 0 || updateCheckInterval) return
 
-/**
- * This function will register a periodic sync check every hour, you can modify the interval as needed.
- * @param {string} swUrl
- * @param {ServiceWorkerRegistration} r
- */
-function registerPeriodicSync(swUrl, r) {
-  if (period <= 0) return
-  const reup=async () => {
-    if ('onLine' in navigator && !navigator.onLine)
-      return
+  const checkForUpdates = async () => {
+    if ('onLine' in navigator && !navigator.onLine) return
 
-    const resp = await fetch(swUrl, {
-      cache: 'no-store',
-      headers: {
-        'cache': 'no-store',
-        'cache-control': 'no-cache'
-      }
-    })
+    try {
+      const response = await fetch(swUrl, {
+        cache: 'no-store',
+        headers: {
+          'cache': 'no-store',
+          'cache-control': 'no-cache'
+        }
+      })
 
-    if (resp?.status === 200)
-      await r.update()
+      if (response.status === 200)
+        await registration.update()
+    } catch {
+      // A failed network check will be retried at the next interval.
+    }
   }
-  setTimeout(reup, 1000)
-  setInterval(reup, period)
-}
 
+  initialUpdateCheck = setTimeout(checkForUpdates, 1000)
+  updateCheckInterval = setInterval(checkForUpdates, updateCheckPeriod)
+}
 
 const { needRefresh, updateServiceWorker } = useRegisterSW({
   immediate: true,
-  onRegisteredSW(swUrl, r) {
-    if (period <= 0) return
-    if (r?.active?.state === 'activated') {
-      swActivated.value = true
-      registerPeriodicSync(swUrl, r)
-    } else if (r?.installing) {
-      r.installing.addEventListener('statechange', (e) => {
-        /** @type {ServiceWorker} */
-        const sw = e.target
-        swActivated.value = sw.state === 'activated'
-        if (swActivated.value)
-          registerPeriodicSync(swUrl, r)
-      })
-    }
+  onRegisteredSW(swUrl, registration) {
+    if (registration)
+      registerPeriodicSync(swUrl, registration)
   }
 })
 
 function close() {
   needRefresh.value = false
 }
+
+onBeforeUnmount(() => {
+  clearTimeout(initialUpdateCheck)
+  clearInterval(updateCheckInterval)
+})
 </script>
 
 <template>

@@ -1,12 +1,33 @@
-import time
+from __future__ import annotations
 
-from renus.core.cache import Cache
-from renus.core.schedule import Schedule
+import signal
+import threading
 
-schedule=Schedule()
+from renus.cache import Cache
+from renus.schedule import Schedule
 
-while True:
-    schedule.every(2).hours().do('delete_expired',Cache().delete_expired)
+def ping() -> None:
+    print("pong")
 
-    schedule.run(logged=True,multi=True)
-    time.sleep(1)
+
+def run() -> None:
+    """Run periodic public-app maintenance jobs until the process is stopped."""
+    cache = Cache()
+    schedule = Schedule()
+    stop_event = threading.Event()
+
+    def request_shutdown(_signum: int, _frame: object) -> None:
+        stop_event.set()
+
+    signal.signal(signal.SIGINT, request_shutdown)
+    signal.signal(signal.SIGTERM, request_shutdown)
+
+    while not stop_event.is_set():
+        schedule.every(2).hours().do("delete_expired", cache.delete_expired)
+        
+        schedule.run(parallel=True)
+        stop_event.wait(1)
+
+
+if __name__ == "__main__":
+    run()

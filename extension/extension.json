@@ -1,0 +1,7 @@
+{
+  "apps": {
+    "codenus/kit": "1.*",
+    "codenus/activity": "2.*",
+    "codenus/tracker": "2.*"
+  }
+}

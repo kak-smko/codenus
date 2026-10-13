@@ -1,280 +1,166 @@
-# Codenus
+# Codenus V2.0.0
 
-**Codenus** is a modern, full-stack web application framework built on top of [Renus](https://github.com/kak-smko/renus) (Python backend) and [Renusify](https://github.com/kak-smko/renusify) (Vue 3 UI components). It provides a modular, extensible architecture for building scalable web applications with separate admin and user-facing interfaces.
+Codenus is a full-stack Python and Vue starter framework for building web applications. It pairs the [Renus](https://github.com/kak-smko/renus) ASGI framework with two Vue 3 frontends powered by [Renusify](https://github.com/kak-smko/renusify): an admin application and a public-facing application.
 
-## Overview
+The repository provides a starting architecture—not a finished product. Add your own routes, models, authentication, and application-specific configuration before deploying it.
 
-Codenus combines the power of Python's async capabilities with Vue 3's reactive frontend, offering a complete solution for building modern web applications. The framework emphasizes:
+## Features
 
-- **Separation of Concerns**: Distinct admin and public frontends
-- **Extensibility**: Plugin-based extension system
-- **Modern Stack**: API backend with Vue 3 + Vite frontend
-- **Developer Experience**: Hot-reloading, TypeScript support, and modern tooling
-- **Security**: Built-in encryption support and security headers
-- **Performance**: ASGI server with worker process support
+- **Async Python backend** built on Renus and ASGI
+- **Separate admin and public frontends** built with Vue 3, Vue Router, and Vite
+- **Flexible database support** through Renus's adapter-based data layer, including SQLite, MySQL, and MongoDB
+- **Extension support** with dependencies declared in `extension/extension.json`
+- **API development proxy** from each Vite server to the backend
+- **PWA tooling** configured for the public frontend
 
 ## Architecture
 
-### Backend
-- **Framework**: [Renus](https://github.com/kak-smko/renus) - A python-based framework
-- **Server**: Uvicorn (ASGI) with multi-worker support
-- **Database**: Configurable database layer
-- **Extensions**: Modular plugin system
-- **Jobs**: Background job processing
-- **Storage**: File storage management
+| Area | Location | Development URL | Purpose |
+| --- | --- | --- | --- |
+| Backend | `main.py`, `routes/` | `http://127.0.0.1:4000` | Renus application, routes, database lifecycle |
+| Admin frontend | `frontend/admin/` | `http://localhost:8081` | Administrative UI |
+| Public frontend | `frontend/index/` | `http://localhost:8080` | Public UI and PWA configuration |
 
-### Frontend
-- **Framework**: Vue 3 with Composition API
-- **UI Library**: [Renusify](https://github.com/kak-smko/renusify) - Vue 3 component library
-- **Build Tool**: Vite for fast development and optimized builds
-- **Routing**: Vue Router 4
-- **HTTP Client**: Axios
-- **PWA Support**: Progressive Web App capabilities (public interface)
+Both Vite development servers proxy `/api` requests to the backend at `http://localhost:4000`.
 
-### Two Frontend Applications
+## Requirements
 
-1. **Admin Interface** (`frontend/admin`)
-   - Port: 8081
-   - Administrative dashboard and management tools
-   - Full CRUD operations
+- Python 3.11 or newer
+- Node.js 18 or newer and npm
+- A database server appropriate to the adapter you configure; MongoDB is the starter's default
 
-2. **Public Interface** (`frontend/index`)
-   - Port: 8080
-   - User-facing application
-   - PWA-enabled for offline support
+## Getting started
 
-## Project Structure
+Use the Renus CLI to generate a Codenus project. The `mvp` template provides this full-stack starter; it is fetched from the repository's `master` branch, so generated projects use the latest template rather than a pinned release.
 
-```
-codenus/
-├── app/                    # Application logic
-├── commands/               # CLI commands
-├── config/                 # Configuration files
-│   ├── app.py             # Application settings
-│   └── database.py        # Database configuration
-├── extension/             # Extension system
-│   └── install.py         # Extension installer
-├── frontend/              # Frontend applications
-│   ├── admin/             # Admin interface (Vue 3 + Vite)
-│   └── index/             # Public interface (Vue 3 + Vite + PWA)
-├── job/                   # Background jobs
-├── public/                # Public assets
-├── routes/                # API routes
-│   ├── index.py           # Route entry point
-│   └── web.py             # Web routes
-├── storage/               # File storage
-├── main.py                # Application entry point
-└── requirements.txt       # Python dependencies
-```
-
-## Prerequisites
-
-Before you begin, ensure you have the following installed:
-
-- **Python**: 3.8 or higher
-- **Node.js**: 18.x or higher
-- **npm**: 9.x or higher
-- **pip**: Latest version
-- **Git**: For cloning the repository
-
-## Installation
-
-### 1. Clone the Repository
+### 1. Install Renus and generate a project
 
 ```bash
-git clone https://github.com/kak-smko/codenus
-cd codenus
+python3 -m pip install renus
+renus create my-app mvp
+cd my-app
 ```
 
-### 2. Backend Setup
+You can also run `renus create` without arguments to select a project name and template interactively. Renus offers `api`, `mvp`, and `extension` templates. The optional database selection is used by the `api` template; `mvp` and `extension` use their own configuration. See the [Renus repository](https://github.com/kak-smko/renus) for CLI details.
 
-Install Python dependencies:
+### 2. Install project dependencies
 
 ```bash
+python3 -m venv .venv
+source .venv/bin/activate  # Windows: .venv\Scripts\activate
+python -m pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-The main dependencies include:
-- `renus` - Backend framework
-- `uvicorn[standard]` - ASGI server
-- `Pillow` - Image processing
-- `cryptography` - Encryption support
-
-### 3. Frontend Setup
-
-Install dependencies for both frontend applications:
+Install the frontend dependencies:
 
 ```bash
-# Install admin interface dependencies
-cd frontend/admin
-npm install
-
-# Install public interface dependencies
-cd ../index
-npm install
+cd frontend/admin && npm ci
+cd ../index && npm ci
 cd ../..
 ```
 
-### 4. Configuration
+### 3. Configure the database
 
-Configure your application by editing the files in the `config/` directory:
+Renus supports multiple database backends, including SQLite, MySQL, and MongoDB, and supports configuring multiple named connections. This Codenus starter defaults to MongoDB at `mongodb://127.0.0.1:27017` and selects the `codenus_test` database. Start MongoDB locally, or change `config/database.py` to use another supported adapter.
 
-- `config/app.py` - Application settings, environment variables
-- `config/database.py` - Database connection and settings
+The starter's `main.py` currently creates `Database` from the single `adapter` exported by `config/database.py`. To use multiple named connections, configure the adapters and update the application's database wiring accordingly. The app connects the database on startup, disconnects on shutdown, and makes it available through `app.state["db"]`.
 
-### 5. Install Extensions
+### 4. Install the declared extensions
 
-Codenus uses an extension system for modular functionality. Install the core extensions:
+`main.py` imports the activity and tracker extensions at startup. Install the extensions declared in `extension/extension.json` with the Renus CLI:
 
 ```bash
-renus extension codenus/user      # User authentication and management
-renus extension codenus/translate # Internationalization support
+renus extension 'codenus/kit==1.*'
+renus extension 'codenus/activity==2.*'
+renus extension 'codenus/tracker==2.*'
 ```
 
-## Running the Application
+This step requires network access. Consult the [Renus documentation](https://github.com/kak-smko/renus) for extension management options.
 
-### Development Mode
+### 5. Start the application
 
-**Start the Backend Server:**
+Run the backend in one terminal, with the virtual environment activated:
 
 ```bash
 python main.py
 ```
 
-The backend will run on `http://127.0.0.1:4000` with:
-- 8 worker processes
-- Hot-reloading enabled
-- CORS headers configured
-
-**Start the Admin Frontend:**
+Run the admin frontend in a second terminal:
 
 ```bash
 cd frontend/admin
 npm run dev
 ```
 
-Access the admin interface at `http://localhost:8081`
-
-**Start the Public Frontend:**
+Run the public frontend in a third terminal:
 
 ```bash
 cd frontend/index
 npm run dev
 ```
 
-Access the public interface at `http://localhost:8080`
+Open the admin app at [http://localhost:8081](http://localhost:8081) and the public app at [http://localhost:8080](http://localhost:8080). The backend listens on port `4000`.
 
-### Production Build
+The default `config/app.py` sets `debug = True`, which enables the development server's reload mode. `main.py` selects its non-debug server settings when `debug` is disabled; review those settings and your deployment architecture before using them in production.
 
-**Build Frontend Applications:**
+## Configuration
+
+- `config/app.py` contains application settings, including the debug flag, public directory, and host-related options.
+- `config/database.py` exports the Renus database `adapter` and the `ID` type used by the application.
+- `extension/extension.json` lists the Codenus extensions expected by this project.
+
+Do not deploy the sample configuration unchanged. In particular, replace development credentials and keys, configure a production database, and review trusted proxy and security settings. Keep production secrets out of source control.
+
+## Project layout
+
+```text
+codenus/
+├── app/                 # Application package and extension integration
+├── commands/            # Project-specific CLI commands
+├── config/              # Application and database settings
+├── extension/           # Extension manifest
+├── frontend/
+│   ├── admin/            # Vue admin application
+│   └── index/            # Vue public application
+├── job/                 # Background job code
+├── routes/
+│   ├── index.py          # Frontend/static routes
+│   ├── api.py            # API route registrations
+│   └── web.py            # Web route registrations
+├── storage/              # Application storage
+├── tests/                # Test suite
+├── main.py               # Backend entry point
+└── requirements.txt      # Python dependencies
+```
+
+## Frontend commands
+
+Run development, build, and preview commands from either frontend directory (`frontend/admin` or `frontend/index`):
 
 ```bash
-# Build admin interface
-cd frontend/admin
-npm run build
-
-# Build public interface
-cd frontend/index
-npm run build
-```
-
-**Run Backend in Production:**
-
-Modify `main.py` to disable reload and adjust worker count:
-
-```python
-if __name__ == "__main__":
-    uvicorn.run("main:app", 
-                host="0.0.0.0",
-                port=4000,
-                server_header=False,
-                workers=8,
-                reload=False,  # Disable for production
-                log_level="warning")
-```
-
-## Features
-
-### Extension System
-
-Codenus provides a modular extension system allowing you to add functionality without modifying core code. Extensions can:
-
-- Add new routes and endpoints
-- Extend database models
-- Provide middleware
-- Add background jobs
-- Integrate third-party services
-
-### Encryption Support
-
-Enable end-to-end encryption by uncommenting the crypto configuration in `main.py`:
-
-```python
-from extension.codenus.user.crypt import Crypto
-
-JsonResponse.cryptor = Crypto
-Request.cryptor = Crypto
+npm run dev      # Start the Vite development server
+npm run build    # Build the frontend
+npm run preview  # Preview a production build
 ```
 
 
-### Progressive Web App
 
-The public interface (`frontend/index`) supports PWA features:
-- Offline functionality
-- Install to home screen
-- Service worker caching
-- App manifest
+The admin build writes to `public/admin`; the public build writes to `public/index`. The backend's frontend routes in `routes/index.py` currently look for `public/index.html` and `public/admin.html`, so configure your deployment or static-file integration to serve the built frontend entry points correctly.
 
-## Development
+## Extending the application
 
-### Code Quality Tools
+- Add API endpoints in `routes/api.py` and web routes in `routes/web.py`, then register them through `routes/index.py`.
+- Add project settings in `config/` and keep environment-specific secrets out of tracked files.
+- Declare Renus extensions in `extension/extension.json` and use the Renus CLI to manage installed extensions.
+- Add or update tests under `tests/` as application behavior grows.
 
-Both frontend applications include:
-
-- **ESLint**: Code linting
-- **Prettier**: Code formatting
-- **EditorConfig**: Consistent coding styles
-
-Run linting:
-
-```bash
-npm run lint      # Lint and auto-fix
-npm run format    # Format code with Prettier
-```
-
-### Hot Module Replacement
-
-Both backend and frontend support hot-reloading during development for immediate feedback.
+For Renus application and database APIs, see the [Renus repository](https://github.com/kak-smko/renus). For UI components, see [Renusify](https://github.com/kak-smko/renusify).
 
 ## Contributing
 
-We welcome contributions from the community! Whether it's:
-
-- Bug reports and fixes
-- Feature requests and implementations
-- Documentation improvements
-- Extension development
-- Performance optimizations
-
-Please feel free to open issues or submit pull requests. We'd be very happy to have you join us.
-
-## Resources
-
-- **Renus Framework**: [github.com/kak-smko/renus](https://github.com/kak-smko/renus)
-- **Renusify UI Library**: [github.com/kak-smko/renusify](https://github.com/kak-smko/renusify)
+Bug reports, fixes, and documentation improvements are welcome. Please open an issue to discuss larger changes before submitting a pull request.
 
 ## License
 
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
-
-## Support
-
-For questions, issues, or discussions:
-
-- Open an issue on GitHub
-- Check the documentation of [Renus](https://github.com/kak-smko/renus) and [Renusify](https://github.com/kak-smko/renusify)
-- Review existing issues and pull requests
-
----
-
-Built with ❤️ using Renus and Renusify
+Codenus is distributed under the BSD 3-Clause License. See [LICENSE](LICENSE) for the full text.

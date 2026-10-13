@@ -1,113 +1,59 @@
-import os
-from hashlib import sha3_256
-from renus.core.config import Config
-from renus.core.request import Request
-from renus.core.routing import Router
-from renus.core.response import FileResponse, JsonResponse, TextResponse
-from renus.core.status import Status
-from app.extension.codenus.setting.model import Setting
-from app.extension.codenus.translate.model import Translate
+from pathlib import Path
 
-def index(request:Request):
-    header = {
-        'Cache-Control': 'max-age=0'
-    }
-    fldr="admin" if request.subdomain==Config('app').get('admin_subdomain','admin') else "index"
-    r= FileResponse(f'public/{fldr}/index.html', headers=header)
-    return r
+from renus.config import Config
+from renus.request import Request
+from renus.response import FileResponse
+from renus.router import Router
 
 
-
-def public_index(name: str,request:Request):
-    fldr = "admin" if request.subdomain == Config('app').get('admin_subdomain','admin') else "index"
-    if os.path.isfile(f'public/{fldr}/{name}'):
-        header = {
-            'Cache-Control': 'max-age=31536000'  # 1y
-        }
-        if name=='sw.js':
-            header = {
-                'Cache-Control': 'max-age=0'
-            }
-
-        return FileResponse(f'public/{fldr}/{name}', headers=header)
-    else:
-        return index(request)
-
-def default(request,package,lang):
-    site_default = Setting(request).hub.get('site_default', None)
-    site_color = Setting(request).hub.get('site_color', None)
-    if site_default is None:
-        return JsonResponse({}, Status.HTTP_404_NOT_FOUND)
-    
-    langs = Setting(request).hub.get('translates',{}).get('langs', {})
-    if lang not in langs:
-        return JsonResponse({}, Status.HTTP_404_NOT_FOUND)
-    rtl = site_default['rtl']
-
-    meta_tag = Setting(request).hub.get('meta_tag', '')
-
-    colors = ''
-    if site_color:
-        colors += 'body {'
-        for color, value in site_color.items():
-            if color != 'id':
-                colors += f'--color-{color}:{value};'
-        colors += '}'
-    translates = Translate(request)
-    translates.hidden_fields = ['_id']
-    translates = translates.where({
-        lang: {'$exists': True},
-        'packages': {'$in': ['renusify',package]}
-    }).select('key', lang).get()
-    fonts = site_default.get('fonts', {}).get(lang, False)
-    s = ''
-    if fonts:
-        if len(fonts) == 1:
-            f = fonts[0]
-            typefont = 'woff2' if f.endswith('.woff2') else 'woff'
-            s += f'<link f="siteDefault" href="{f}" as="font" type="font/{typefont}" crossorigin="anonymous">'
-            s += '<style f="siteDefault">@font-face {font-family: fontOne;font-style: normal;font-display: swap;src: local(fontOne), ' + f'url({f}) format("{typefont}")' + '}*{font-family: fontOne, sans-serif}</style>'
-        elif len(fonts) == 2:
-            f = fonts[0]
-            f2 = fonts[1]
-            typefont = 'woff2' if f.endswith('.woff2') else 'woff'
-            typefont2 = 'woff2' if f2.endswith('.woff2') else 'woff'
-            s += f'<link f="siteDefault" href="{f}" as="font" type="font/{typefont}" crossorigin="anonymous">'
-            s += f'<link f="siteDefault" href="{f2}" as="font" type="font/{typefont2}" crossorigin="anonymous">'
-            s += '<style f="siteDefault">@font-face {font-family: fontOne;font-style: normal;font-display: swap;src: local(fontOne), ' + f'url({f}) format("{typefont}")' + '}*{font-family: fontOne, sans-serif } '
-            s += '@font-face {font-family: fontTwo;font-style: normal;font-display: swap;src: local(fontTwo), ' + f'url({f2}) format("{typefont2}")' + '}.font-two{font-family: fontTwo, sans-serif}</style>'
-    fonts = s
-    r = {
-        'fonts': fonts,
-        'translates': translates,
-        'colors': colors,
-        'meta_tag': meta_tag,
-        'lang': lang,
-        'langs': langs,
-        'rtl': rtl
-    }
-
-    r['hash']= sha3_256(str(r).encode()).hexdigest()
-    return JsonResponse(r)
-def opt(path, request):
-    host = request.headers.get('host', '')
-    allows = Config('app').get('cors_allow', [])
-    if host in allows or '*' in allows:
-        return TextResponse('', headers={
-            'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-        })
-    else:
-        for site in allows:
-            if site.startswith('*') and host.endswith(site.replace('*', '')):
-                return TextResponse('', headers={
-                    'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-                })
+_PUBLIC_ROOT = Path(Config("app").get("public_folder", "public")).resolve()
 
 
-    return TextResponse('', Status.HTTP_405_METHOD_NOT_ALLOWED)
+def _public_file(path: str) -> Path | None:
+    """Resolve a public asset while preventing path traversal."""
+    candidate = (_PUBLIC_ROOT / path).resolve()
+    try:
+        candidate.relative_to(_PUBLIC_ROOT)
+    except ValueError:
+        return None
+    return candidate if candidate.is_file() else None
 
-r = Router()
-r.option(r'{path:[\w\W]*}', func=opt)
-r.get('/', func=index)
-r.get('api/site-default/{package}/{lang}', func=default)
-r.get(r'/{name:[\s\S]*}', func=public_index)
+
+async def index(request: Request):
+    """Serve the public application's entry point."""
+    return FileResponse(
+        _PUBLIC_ROOT / "index.html",
+        headers={"Cache-Control": "max-age=0"},
+    )
+
+
+async def admin(path: str | None = None, request: Request | None = None):
+    """Serve the admin application's entry point for all admin paths."""
+    del path, request
+    return FileResponse(
+        _PUBLIC_ROOT / "admin.html",
+        headers={"Cache-Control": "max-age=0"},
+    )
+
+
+async def public(path: str, request: Request):
+    """Serve a public asset, falling back to the application entry point."""
+    del request
+    asset = _public_file(path)
+    if asset is None:
+        return await index(request=None)  # type: ignore[arg-type]
+    return FileResponse(asset, headers={"Cache-Control": "max-age=31536000"})
+
+
+
+router = Router()
+router.get("/", func=index)
+router.get("/{path:path}", func=public)
+
+router2 = Router(subdomain=Config("app").get("admin_subdomain", "admin"),)
+router2.get("/admin", func=admin)
+router2.get("/admin/{path:path}", func=admin)
+router.get("/{path:path}", func=public)
+
+router.include(router2)
+

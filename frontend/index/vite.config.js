@@ -22,11 +22,29 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': 'http://localhost:4000',
-      '/storage': 'http://localhost:4000',
-      '/pwa': 'http://localhost:4000',
     }
   },
   plugins: [
+    {
+      name: 'production-content-security-policy',
+      apply: 'build',
+      transformIndexHtml: {
+        order: 'post',
+        handler() {
+          return [
+            {
+              tag: 'meta',
+              attrs: {
+                'http-equiv': 'Content-Security-Policy',
+                content:
+                  "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; form-action 'self'; base-uri 'self'; upgrade-insecure-requests;",
+              },
+              injectTo: 'head',
+            },
+          ]
+        },
+      },
+    },
     renusifyAutoImport(),
     vue({
       template: {
@@ -46,24 +64,24 @@ export default defineConfig({
         description: 'test',
         theme_color: '#ffffff',
 
-        icons: [/*{
-        src: 'pwa-64x64.png',
+        icons: [{
+        src: '/api/storage/img/logo-mini.png?w=64&h=64',
         sizes: '64x64',
         type: 'image/png',
       }, {
-        src: 'pwa-192x192.png',
+        src: '/api/storage/img/logo-mini.png?w=192&h=192',
         sizes: '192x192',
         type: 'image/png',
       }, {
-        src: 'pwa-512x512.png',
+        src: '/api/storage/img/logo-mini.png?w=512&h=512',
         sizes: '512x512',
         type: 'image/png',
       }, {
-        src: 'maskable-icon-512x512.png',
+        src: '/api/storage/img/logo-mini.png?w=512&h=512',
         sizes: '512x512',
         type: 'image/png',
         purpose: 'maskable',
-      }*/],
+      }],
       },
 
       workbox: {
