@@ -1,4 +1,4 @@
-# Codenus V2.0.0
+# Codenus V1.0.0
 
 Codenus is a full-stack Python and Vue starter framework for building web applications. It pairs the [Renus](https://github.com/kak-smko/renus) ASGI framework with two Vue 3 frontends powered by [Renusify](https://github.com/kak-smko/renusify): an admin application and a public-facing application.
 
