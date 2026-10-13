@@ -1,9 +1,10 @@
 <template>
   <r-btn
+    v-if="$r.store.deferredPrompt"
     class="color-info"
     block
+    :disabled="prompting"
     @click="add"
-    v-if="this.$r.store.deferredPrompt"
   >
     {{ $t("install_app") }}
   </r-btn>
@@ -12,19 +13,26 @@
 <script>
 export default {
   name: "installApp",
+  data() {
+    return {
+      prompting: false
+    };
+  },
   methods: {
-    add() {
+    async add() {
       const deferredPrompt = this.$r.store.deferredPrompt;
-      deferredPrompt.prompt();
+      if (!deferredPrompt || this.prompting) return;
 
-      deferredPrompt.userChoice.then((choiceResult) => {
-        if (choiceResult.outcome === "accepted") {
-          console.log("User accepted the A2HS prompt");
-        } else {
-          console.log("User dismissed the A2HS prompt");
-        }
+      this.prompting = true;
+      try {
+        await deferredPrompt.prompt();
+        await deferredPrompt.userChoice;
+      } catch (error) {
+        console.error("Unable to show the app install prompt", error);
+      } finally {
         this.$r.store.deferredPrompt = null;
-      });
+        this.prompting = false;
+      }
     },
   },
 };

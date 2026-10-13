@@ -31,8 +31,7 @@ export default {
       this.loaded = true
       this.userInfo()
     }
-    this.setDefault();
-    this.getDefault();
+    this.setLang();
     window.addEventListener("beforeinstallprompt", e => {
       // Prevent Chrome 67 and earlier from automatically showing the prompt
       console.log("beforeinstallprompt");

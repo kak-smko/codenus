@@ -5,68 +5,13 @@ export const App = {
     }
   },
   methods: {
-    setDefault() {
-      this.lang_added = false
-      let data = this.$storage.get('siteDefault', false)
-      if (data === false) {
-        return
-      }
-      if (data['fonts']) {
-        document.head.append(
-          document.createRange().createContextualFragment(data['fonts'])
-        )
-      }
-      if (data['meta_tag']) {
-        document.head.append(
-          document.createRange().createContextualFragment(data['meta_tag'])
-        )
-      }
-      if (data['colors']) {
-        let el = document.createElement('style')
-        el.setAttribute('f', 'siteDefault')
-        el.innerHTML = data['colors']
-        document.head.append(el)
-      }
-      this.$r.store.version = data['version'] || 0
-      this.$r.langs = data['langs'] || {}
-      let p = window.location.pathname.split('/')
-      if (p[1] in data['langs']) {
-        this.$r.lang = p[1]
-        this.$storage.set('lang', p[1])
-        this.$storage.set('rtl', data['langs'][p[1]].rtl)
-      } else {
-        this.$r.lang = this.$storage.get('lang', data['lang'])
-      }
-      this.$r.rtl = this.$storage.get('rtl', data['rtl'])
-      if (data['translates'] && data['lang'] === this.$r.lang) {
-        let r = {}
-        data['translates'].forEach((item) => {
-          r[item.key] = item[this.$r.lang]
-        })
-        this.$translate.setMessages(r, this.$r.lang)
-        this.$translate.local = this.$r.lang
-      } else {
-        this.lang_loads(this.$r.lang)
-      }
-      setTimeout(() => {
-        this.lang_added = true
-      }, 10)
+    setLang() {
+      this.$r.lang = this.$storage.get('lang', this.$r.lang)
+      this.lang_loads(this.$r.lang)
       document.documentElement.setAttribute('lang', this.$r.lang)
     },
-    getDefault() {
-      this.$axios.get('site-default/' + this.$r.package+"/"+this.$r.lang).then(({data}) => {
-        let d = this.$storage.get('siteDefault', {})
-        if (data['hash'] !== d['hash']) {
-          this.$storage.set('siteDefault', data)
-          this.setDefault()
-        }
-        d = ''
-      }, () => {
-        this.lang_loads(this.$r.lang)
-      })
-    },
     lang_loads(lang) {
-      this.$axios.get(`/translate/renusify,${this.$r.package}/${lang}`).then(({data}) => {
+      this.$axios.get(`/translate/renusify,${this.$r.package}/${lang}`).then(({ data }) => {
         const d = {}
         const lng = data.length
         for (let i = 0; i < lng; i++) {
@@ -82,7 +27,7 @@ export const App = {
       })
     },
     userInfo() {
-      this.$r.store.user = {login: false, info: {}}
+      this.$r.store.user = { login: false, info: {} }
       this.$r.store.user_loaded = false
       if (this.$storage.get('auth.token', false)) {
         this.$r.store.user = this.$storage.get('user_login', {
@@ -90,7 +35,7 @@ export const App = {
           info: {}
         })
         this.$axios.get('user').then(
-          ({data}) => {
+          ({ data }) => {
             this.$r.store.user = data
             this.$storage.set('user_login', data)
             this.$r.store.user_loaded = true

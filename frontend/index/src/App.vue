@@ -36,14 +36,22 @@ export default {
       this.loaded = true
       this.userInfo()
     }
-    this.setDefault();
-    this.getDefault();
-    window.addEventListener("beforeinstallprompt", e => {
-      // Prevent Chrome 67 and earlier from automatically showing the prompt
-      console.log("beforeinstallprompt");
-      e.preventDefault();
-      this.$r.store.deferredPrompt = e;
-    });
+    this.setLang();
+    window.addEventListener("beforeinstallprompt", this.captureInstallPrompt);
+    window.addEventListener("appinstalled", this.clearInstallPrompt);
+  },
+  beforeUnmount() {
+    window.removeEventListener("beforeinstallprompt", this.captureInstallPrompt);
+    window.removeEventListener("appinstalled", this.clearInstallPrompt);
+  },
+  methods: {
+    captureInstallPrompt(event) {
+      event.preventDefault();
+      this.$r.store.deferredPrompt = event;
+    },
+    clearInstallPrompt() {
+      this.$r.store.deferredPrompt = null;
+    }
   }
 };
 </script>

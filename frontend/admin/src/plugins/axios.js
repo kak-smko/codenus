@@ -232,7 +232,7 @@ axios.interceptors.response.use(
     if (res && res.data?.msg === 'auth.failed') {
       window.app.$toast(window.app.$t('auth.failed'), { type: 'error' })
       window.app.$r.store.user = { login: false, info: {} }
-      window.app.$storage.remove('auth.token')
+      //todo window.app.$storage.remove('auth.token')
       window.app.$storage.remove('user_login')
       return Promise.reject(error)
     } else if (res && res.data?.msg) {

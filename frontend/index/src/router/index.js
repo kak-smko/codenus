@@ -54,11 +54,5 @@ const router = createRouter({
   }
 })
 
-router.beforeEach((to, from, next) => {
-  if (to.path === '/') {
-    next({ name: 'base' })
-  } else {
-    next()
-  }
-})
+
 export default router
