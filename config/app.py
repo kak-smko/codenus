@@ -6,3 +6,4 @@ public_folder = "public"
 ipHeader = "cf-connecting-ip" #cloudflare cdn
 cacheDriver='file'
 host="codenus.com"
+cors_allow=["*"] if env=="local" else []
