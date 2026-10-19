@@ -1,6 +1,7 @@
 .venv
 node_modules
 /public/
+/extension/
 __pycache__
 .idea
 .zed
