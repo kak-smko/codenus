@@ -5,5 +5,6 @@ key = '5fc319d99740aff056c4ed1c43afec2e'
 public_folder = "public"
 ipHeader = "cf-connecting-ip" #cloudflare cdn
 cacheDriver='file'
-host="codenus.com"
+host="localhost" if env == "local" else "codenus.com"
+admin_subdomain="admin"
 cors_allow=["*"] if env=="local" else []
