@@ -48,9 +48,30 @@ export default {
   },
   created() {
     this.$axios.get("/api/home/menu/home/" + this.$r.lang).then(({ data }) => {
-      this.baseMenu = data;
+      this.baseMenu = this.to_json(data);
     });
   },
+  methods:{
+    to_json(data) {
+      if (!Array.isArray(data)) return data
+    
+      data.forEach(item => {
+        if (item && item.to) {
+          try {
+            item.to = JSON.parse(this.$helper.cleanText(item.to))
+          } catch {
+            item.to = null
+          }
+        }
+    
+        if (item && Array.isArray(item.children)) {
+          this.to_json(item.children)  
+        }
+      })
+    
+      return data
+    }
+  }
 };
 </script>
 
