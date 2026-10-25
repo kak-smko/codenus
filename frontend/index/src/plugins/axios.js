@@ -262,7 +262,7 @@ axios.interceptors.response.use(
       }
 
       try {
-        const response = await axios.get('/user/renew-token')
+        const response = await axios.get('/api/user/renew-token')
         const newToken = response.data.token
 
         await window.app.$storage.setSafe('auth.token', newToken)
@@ -306,7 +306,7 @@ axios.update_key = () => {
       }
       return axios
         .post(
-          '/user/renew-token',
+          '/api/user/renew-token',
           {
             pubKey: clientPublicKey,
           },

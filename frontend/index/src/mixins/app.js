@@ -34,7 +34,7 @@ export const App = {
           login: false,
           info: {}
         })
-        this.$axios.get('user').then(
+        this.$axios.get('/api/user').then(
           ({ data }) => {
             this.$r.store.user = data
             this.$storage.set('user_login', data)

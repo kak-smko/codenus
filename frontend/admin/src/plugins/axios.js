@@ -232,7 +232,7 @@ axios.interceptors.response.use(
     if (res && res.data?.msg === 'auth.failed') {
       window.app.$toast(window.app.$t('auth.failed'), { type: 'error' })
       window.app.$r.store.user = { login: false, info: {} }
-      //todo window.app.$storage.remove('auth.token')
+      window.app.$storage.remove('auth.token')
       window.app.$storage.remove('user_login')
       return Promise.reject(error)
     } else if (res && res.data?.msg) {
@@ -262,7 +262,7 @@ axios.interceptors.response.use(
       }
 
       try {
-        const response = await axios.get('/user/renew-token')
+        const response = await axios.get('/api/user/renew-token')
         const newToken = response.data.token
 
         await window.app.$storage.setSafe('auth.token', newToken)
@@ -306,7 +306,7 @@ axios.update_key = () => {
       }
       return axios
         .post(
-          '/user/renew-token',
+          '/api/user/renew-token',
           {
             pubKey: clientPublicKey,
           },
