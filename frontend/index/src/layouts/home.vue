@@ -47,7 +47,7 @@ export default {
     };
   },
   created() {
-    this.$axios.get("home/menu/home/" + this.$r.lang).then(({ data }) => {
+    this.$axios.get("/api/home/menu/home/" + this.$r.lang).then(({ data }) => {
       this.baseMenu = data;
     });
   },

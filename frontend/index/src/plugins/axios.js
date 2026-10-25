@@ -6,7 +6,7 @@ const serverPublicKey = import.meta.env.VITE_APP_SERVER_PUBKEY
 const cryptor = new Crypto()
 
 // Full config
-axios.defaults.baseURL = `${import.meta.env.VITE_APP_API_URL}/api`
+axios.defaults.baseURL = `${import.meta.env.VITE_APP_API_URL}`
 axios.defaults.headers['X-Requested-With'] = 'XMLHttpRequest'
 axios.defaults.headers.post['Content-Type'] = 'application/json'
 // add encryption to all requests

@@ -72,7 +72,7 @@ export default {
     }
   },
   created() {
-    this.$axios.get('home/menu/admin/' + this.$r.lang).then(({ data }) => {
+    this.$axios.get('/api/home/menu/admin/' + this.$r.lang).then(({ data }) => {
       if (data) {
         data.forEach(item => {
           if (item.to) {
@@ -85,7 +85,7 @@ export default {
   },
   methods: {
     logout() {
-      this.$axios.post('/user/logout')
+      this.$axios.post('/api/user/logout')
       this.$r.store.user = {
         login: false,
         info: {}

@@ -11,7 +11,7 @@ export const App = {
       document.documentElement.setAttribute('lang', this.$r.lang)
     },
     lang_loads(lang) {
-      this.$axios.get(`/translate/renusify,${this.$r.package}/${lang}`).then(({ data }) => {
+      this.$axios.get(`/api/translate/renusify,${this.$r.package}/${lang}`).then(({ data }) => {
         const d = {}
         const lng = data.length
         for (let i = 0; i < lng; i++) {

@@ -49,9 +49,6 @@ export default {
       social_media: {},
     };
   },
-  created() {
-    this.get();
-  },
   methods: {
     go(hash) {
       if (this.$route.name !== hash.to.name) {
@@ -70,14 +67,7 @@ export default {
           }
         }, 100);
       }
-    },
-    get() {
-      this.$axios.get("home/settings/multi/social_media").then(({ data }) => {
-        for (let i = 0; i < data.length; i++) {
-          this[data[i]["name"]] = data[i]["value"];
-        }
-      });
-    },
+    }
   },
 };
 </script>
