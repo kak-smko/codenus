@@ -20,7 +20,7 @@
               target="_blank"
             >
               <r-img
-                :src="`/storage/logos/${i}.svg`"
+                :src="`/api/storage/logos/${i}.svg`"
                 :alt="i"
                 width="25"
                 height="25"

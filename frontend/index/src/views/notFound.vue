@@ -8,7 +8,7 @@
     <r-row class="mt-12">
       <r-col>
         <r-img
-          src="/storage/img/site/404.jpg"
+          src="/api/storage/img/not-found.png"
           alt="404 page"
           auto-size
           :wPerh="2"
